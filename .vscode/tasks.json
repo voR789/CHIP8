@@ -1,0 +1,25 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "build-chip8",
+        "type": "shell",
+        "command": "g++",
+        "args": [
+          "Ex1.cpp",
+          "-o",
+          "chip8",
+          "-lGL",
+          "-lGLU",
+          "-lglut"
+        ],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "problemMatcher": ["$gcc"]
+      }
+    ]
+  }
+
+  
