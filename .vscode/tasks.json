@@ -1,25 +1,30 @@
 {
-    "version": "2.0.0",
-    "tasks": [
-      {
-        "label": "build-chip8",
-        "type": "shell",
-        "command": "g++",
-        "args": [
-          "Ex1.cpp",
-          "-o",
-          "chip8",
-          "-lGL",
-          "-lGLU",
-          "-lglut"
-        ],
-        "group": {
-          "kind": "build",
-          "isDefault": true
-        },
-        "problemMatcher": ["$gcc"]
-      }
-    ]
-  }
-
-  
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build-chip8",
+      "type": "shell",
+      "command": "g++",
+      "args": [
+        "${file}.cpp",  // or your actual path
+        "-o",
+        "GLUT_Example/chip8",
+        "-std=c++17",
+        "-Wall",
+        "-Wextra",
+        "-pedantic-errors",
+        "-Weffc++",
+        "-Wno-unused-parameter",
+        "-fsanitize=undefined,address",
+        "-lGL",
+        "-lGLU",
+        "-lglut"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": ["$gcc"]
+    }
+  ]
+}
