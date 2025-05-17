@@ -6,16 +6,9 @@
       "type": "shell",
       "command": "g++",
       "args": [
-        "${file}.cpp",  // or your actual path
+        "GLUT_Example/Example1.cpp",
         "-o",
-        "GLUT_Example/chip8",
-        "-std=c++17",
-        "-Wall",
-        "-Wextra",
-        "-pedantic-errors",
-        "-Weffc++",
-        "-Wno-unused-parameter",
-        "-fsanitize=undefined,address",
+        "chip8",
         "-lGL",
         "-lGLU",
         "-lglut"
