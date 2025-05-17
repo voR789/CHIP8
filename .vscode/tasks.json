@@ -6,7 +6,7 @@
       "type": "shell",
       "command": "g++",
       "args": [
-        "GLUT_Example/Example1.cpp",
+        "main.cpp",
         "-o",
         "chip8",
         "-lGL",
