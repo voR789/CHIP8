@@ -18,12 +18,17 @@ class chip8{
     uint8_t stack_ptr;
     uint8_t gfx[2048]; // 64*32
     uint8_t key[16];
-public:    
+public:   
+    uint8_t* getGFX();
+    uint8_t* getKEY();
+    
     bool drawFlag;
     void initialize();
     void emulateCycle();
     void loadGame(string name);
     void setKeys();
+
+    
 
 };
 

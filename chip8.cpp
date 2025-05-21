@@ -8,6 +8,15 @@
 
 using std::string, std::memset, std::ifstream, std::cerr;
 
+// Helpers
+uint8_t* chip8::getGFX(){
+    return gfx;
+}
+uint8_t* chip8::getKEY(){
+    return key;
+}
+
+// Game
 void chip8::initialize(){
     PC = 0x200; // set program counter to first address of actual interpreter
     current_opcode = 0;
@@ -238,11 +247,19 @@ void chip8::emulateCycle(){
         switch(third){
             case(0x9): // (EX9E)
                 // If the key pressed = Vx, skip the next instruction
-                // TODO:
+                if(key[V[second]]){
+                    PC += 4;
+                } else{
+                    PC += 2;
+                }
                 break;
             case(0xA): // (EXA1)
                 // If the key pressed != Vx, skip the next instruction 
-                // TODO:
+                if(!key[V[second]]){
+                    PC += 4;
+                } else{
+                    PC += 2;
+                } 
                 break;
             default:
                 throw std::runtime_error("Unknown 0xE__ opcode");
@@ -256,10 +273,17 @@ void chip8::emulateCycle(){
                         // Sets Vx to delay timer
                         V[second] = delay_timer;
                         break;
-                    case(0xA): // (FX0A)
+                    case(0xA):{ // (FX0A)
                         // A key press is awaited, and then stored in VX (blocking operation, all instruction halted until next key event, delay and sound timers should continue processing)
-                        // TODO:
+                        for(int i = 0; i < 16; i++){
+                                if(key[i] == 1){
+                                    V[second] = i;
+                                    PC += 2; // since emulate cycle is called every "tick", this will loop until a key is pressed
+                                    break;
+                                }
+                        }
                         break;
+                    }
                     default:
                         throw std::runtime_error("Unknown 0xF0_ opcode");
                 }
