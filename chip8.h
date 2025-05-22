@@ -26,9 +26,7 @@ public:
     void initialize();
     void emulateCycle();
     void loadGame(string name);
-    void setKeys();
 
-    
 
 };
 

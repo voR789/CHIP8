@@ -1,4 +1,5 @@
 #include "chip8.h"
+#include <iostream>
 #include <GL/glut.h>
 
 chip8 cpu;
@@ -39,13 +40,12 @@ void loadGraphics(int argc, char** argv){
     glLoadIdentity();
     glOrtho(0.0, 64.0, 32.0, 0.0, -1.0, 1.0); // Left, Right, Bottom, Top
     glMatrixMode(GL_MODELVIEW);
-    glutMainLoop();
 }
 
 // Input
 void keyPressHandler(unsigned char keyPress, int x, int y){
     uint8_t* keyPtr = cpu.getKEY();
-    switch(keyPress){
+    switch(toupper(keyPress)){
         case('1'):{keyPtr[0x1] = 1; break;}
         case('2'):{keyPtr[0x2] = 1; break;}
         case('3'):{keyPtr[0x3] = 1; break;}
@@ -68,7 +68,7 @@ void keyPressHandler(unsigned char keyPress, int x, int y){
 
 void keyReleaseHandler(unsigned char keyPress, int x, int y){
     uint8_t* keyPtr = cpu.getKEY();
-    switch(keyPress){
+    switch(toupper(keyPress)){
         case('1'):{keyPtr[0x1] = 0; break;}
         case('2'):{keyPtr[0x2] = 0; break;}
         case('3'):{keyPtr[0x3] = 0; break;}
@@ -95,6 +95,10 @@ void loadInput(){
 
 void timer(int value){
     cpu.emulateCycle();
+    cpu.emulateCycle();
+    cpu.emulateCycle();
+    cpu.emulateCycle();
+    
     if(cpu.drawFlag){
         glutPostRedisplay();
         cpu.drawFlag = false;
@@ -103,15 +107,33 @@ void timer(int value){
     glutTimerFunc(16, timer, 0);
 }
 int main(int argc, char** argv){
-    // Setup graphics and input
-    loadGraphics(argc,argv);
-    loadInput();
+    int select;
+    std::cout << "Select [Type 1, 2, 3] a game from the options: " << '\n' << "Pong [1]" << '\n' << "Breakout [2]" << '\n' << "Invaders [3]" << '\n';
+    std::cin >> select;
+    
     // Initialize CPU, and load game
     cpu.initialize();
-    cpu.loadGame(""); 
-    // Emulation loop using GLUT
+    switch(select){
+        case(1):
+            std::cout << '\n' << "Controls:" << '\n' << "Left Paddle: [Q] [1]" << '\n' << "Right Paddle [4] [R]" << std::endl;
+            cpu.loadGame("Pong.ch8"); 
+            break;
+        case(2):
+            std::cout << '\n' << "Controls:" << '\n' << "Paddle: [Q] [E]" << std::endl;
+            cpu.loadGame("Breakout.ch8"); 
+            break;
+        case(3):
+            std::cout << '\n' << "Controls:" << '\n' << "Spaceship: [Q] [E]" << std::endl;
+            cpu.loadGame("Invaders.ch8"); 
+            break;
+    }
+    
+    // Setup graphics and input
+    loadGraphics(argc,argv);
+    loadInput();//
     glutTimerFunc(0, timer, 0);
-
+    // Emulation loop using GLUT
+    glutMainLoop();
     return 0;
 }
 // run executable with ./chip8

@@ -24,12 +24,15 @@ void chip8::initialize(){
     stack_ptr = 0;
     sound_timer = 0;
     delay_timer = 0;
+    drawFlag = false;
 
     // clear all arrays w/ memset
     memset(V,0,sizeof(V)); //  0,1,2,3,4,5,6,7,8,9,A,B,C,D,E,F
     memset(stack,0,sizeof(stack));
     memset(memory,0,sizeof(memory));
     memset(gfx,0,sizeof(gfx));
+    memset(key, 0, sizeof(key));
+
 
     // load fonts
     u_int8_t fonts[80] = {
@@ -51,7 +54,7 @@ void chip8::initialize(){
         0xF0, 0x80, 0xF0, 0x80, 0x80  // F
         };
     for(int i = 0; i < 80; i++){ // start at 80, because = to 0x50 in hex
-        memory[i] = fonts[i];
+        memory[i+0x50] = fonts[i];
     }    
 }
 
@@ -76,6 +79,10 @@ void chip8::emulateCycle(){
     uint8_t second = (current_opcode & 0x0F00) >> 8;
     uint8_t third = (current_opcode & 0x00F0) >> 4;
     uint8_t fourth = (current_opcode & 0x000F);
+
+    // Debug statement
+    // std::cout << std::hex << "PC =0x" << PC << " Current Opcode =0x" << current_opcode << std::dec << "\n";
+
 
     switch (first)
     {
@@ -257,6 +264,7 @@ void chip8::emulateCycle(){
 
             }
         }
+        drawFlag = true;
         PC += 2;
         break;
         }
@@ -289,6 +297,7 @@ void chip8::emulateCycle(){
                     case(0x7): // (FX07)
                         // Sets Vx to delay timer
                         V[second] = delay_timer;
+                        PC += 2;
                         break;
                     case(0xA):{ // (FX0A)
                         // A key press is awaited, and then stored in VX (blocking operation, all instruction halted until next key event, delay and sound timers should continue processing)
@@ -310,19 +319,28 @@ void chip8::emulateCycle(){
                     case(0x5): // (FX15)
                         // Sets delay timer to Vx
                         delay_timer = V[second];
+                        PC += 2;
                         break;
                     case(0x8): // (FX18)
                         // Sets sound timer to Vx
                         sound_timer = V[second];
+                        PC += 2;
                         break;
                     case(0xE): // (FX1E)
                         // Adds Vx to I, no carry flag (Vf)
                         I += V[second];
+                        PC += 2;
                         break;
                     default:
                         throw std::runtime_error("Unknown 0xF1_ opcode");
                 }
                 break;
+            case(0x2):{ // (FX29)
+                // Sets I to the location of the sprite for the character in VX(only consider the lowest nibble). Characters 0-F (in hexadecimal) are represented by a 4x5 font
+                I = V[second]*5 + 0x50; // fonts location
+                PC += 2;
+                break;
+            }
             case(0x3):{ // (FX33)    
                 // Stores the binary-coded decimal representation of VX, with the hundreds digit in memory at location in I, the tens digit at location I+1, and the ones digit at location I+2.
                 unsigned int num = V[second];
