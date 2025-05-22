@@ -6,15 +6,39 @@ chip8 cpu;
 // Graphics
 void display() {
     glClear(GL_COLOR_BUFFER_BIT);
+    glLoadIdentity();
+    uint8_t* gfx = cpu.getGFX();
+    glColor3f(1.0,1.0,1.0); // set draw color to white
+    // drawing loop
+    for(int i = 0; i < 32; i++){
+        for(int j = 0; j < 64; j++){
+            if(gfx[i*64+j]){
+                // pixel drawing
+                glBegin(GL_QUADS);
+                    glVertex2i(j,i);
+                    glVertex2i(j+1,i);
+                    glVertex2i(j + 1,i + 1);
+                    glVertex2i(j,i + 1);
+                glEnd();
+            }
+        }
+    }
     glFlush();
 }
 
 void loadGraphics(int argc, char** argv){
     glutInit(&argc, argv);
+    // window setup
     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
     glutInitWindowSize(64*20,32*20); // x20 resolution
     glutCreateWindow("Chip8 System");
     glutDisplayFunc(display);
+
+    // remap to more useful coordinates
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(0.0, 64.0, 32.0, 0.0, -1.0, 1.0); // Left, Right, Bottom, Top
+    glMatrixMode(GL_MODELVIEW);
     glutMainLoop();
 }
 
@@ -69,20 +93,24 @@ void loadInput(){
     glutKeyboardUpFunc(keyReleaseHandler);
 }
 
+void timer(int value){
+    cpu.emulateCycle();
+    if(cpu.drawFlag){
+        glutPostRedisplay();
+        cpu.drawFlag = false;
+    }
+
+    glutTimerFunc(16, timer, 0);
+}
 int main(int argc, char** argv){
     // Setup graphics and input
     loadGraphics(argc,argv);
     loadInput();
     // Initialize CPU, and load game
     cpu.initialize();
-
-    //cpu.loadGame(""); 
-    // Emulation loop
-
-    for(;;){
-    
-    }
-    
+    cpu.loadGame(""); 
+    // Emulation loop using GLUT
+    glutTimerFunc(0, timer, 0);
 
     return 0;
 }
