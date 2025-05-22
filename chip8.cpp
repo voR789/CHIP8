@@ -239,10 +239,27 @@ void chip8::emulateCycle(){
         V[second] = (third << 4 | fourth) & (rand() % 256);
         PC += 2;
         break;
-    case(0xD): // (DXYN) 
+    case(0xD):{ // (DXYN) 
         // Draws a sprite at (Vx,Vy) with a width 8 and height N px. Each row of 8 pixels is read as bit-coded starting from memory location I; I value does not change after the execution of this instruction. As described above, VF is set to 1 if any screen pixels are flipped from set to unset when the sprite is drawn, and to 0 if that does not happen.
-        // TODO:
+        V[0xF] = 0;
+        int index;
+        int pixel;
+
+        for(int i = 0; i < fourth; i++){ // loop through rows to N
+            uint8_t sprite_line = memory[I + i];
+            for(int j = 0; j < 8; j++){
+                index = ((V[third]+i) % 32)*64 + (V[second] + j) % 64; 
+                pixel = (sprite_line  >> (7-j) & 0x1); // bitmask to isolate digits (1000,0000)
+                if(gfx[index] == 1 && pixel){ // if gfx[index] = 1, and if initial pixel was one, then that means a collision happened
+                    V[0xF] = 1;
+                }
+                gfx[index] ^= pixel;
+
+            }
+        }
+        PC += 2;
         break;
+        }
     case(0xE): // (EX..)
         switch(third){
             case(0x9): // (EX9E)
